@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+# ROS2 / colcon
+build/
+install/
+log/
+# 运行时输出
+calib_result/
+# IDE
+.vscode/
+.cursor/
+*.swp
+# 系统
+.DS_Store
