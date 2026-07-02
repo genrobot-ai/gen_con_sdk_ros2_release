@@ -10,15 +10,17 @@ set -euo pipefail
 #     bash camera_cmd.sh camerarl
 #     bash camera_cmd.sh camerarr
 #     bash camera_cmd.sh MCUID
+#     bash camera_cmd.sh DMZEROSET
 #   Dual device (left/right):
 #     bash camera_cmd.sh left camerarc
 #     bash camera_cmd.sh right camerarl
+#     bash camera_cmd.sh left DMZEROSET
 # Optional: set SERIAL_PORT to force a device; otherwise auto-find /dev/ttyUSB*.
 
 usage() {
   echo "Usage:"
-  echo "  Single: bash ${BASH_SOURCE[0]} {1234|camerarc|camerarl|camerarr|MCUID}"
-  echo "  Dual:   bash ${BASH_SOURCE[0]} {left|right} {camerarc|camerarl|camerarr|MCUID|1234}"
+  echo "  Single: bash ${BASH_SOURCE[0]} {1234|camerarc|camerarl|camerarr|MCUID|DMZEROSET}"
+  echo "  Dual:   bash ${BASH_SOURCE[0]} {left|right} {camerarc|camerarl|camerarr|MCUID|DMZEROSET|1234}"
   echo "Optional env: SERIAL_PORT=/dev/ttyUSB0"
   exit 1
 }
@@ -38,9 +40,9 @@ else
 fi
 
 case "${RECORD_VALUE}" in
-  1234|camerarc|camerarl|camerarr|MCUID) ;;
+  1234|camerarc|camerarl|camerarr|MCUID|DMZEROSET) ;;
   *)
-    echo "Error: second argument must be one of 1234/camerarc/camerarl/camerarr/MCUID"
+    echo "Error: second argument must be one of 1234/camerarc/camerarl/camerarr/MCUID/DMZEROSET"
     usage
     ;;
 esac

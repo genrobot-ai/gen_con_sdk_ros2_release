@@ -13,18 +13,23 @@ import rclpy
 from .databus_single import DataBusNode, find_serial_port
 from .pack import CmdPack
 
+VALID_RECORD_VALUES = ("1234", "camerarc", "camerarl", "camerarr", "MCUID", "DMZEROSET")
+
 
 def main(args=None):
     import argparse
     parser = argparse.ArgumentParser(description="Send a calibration command over DAS serial")
-    parser.add_argument("record_value", type=str,
-                        help="One of 1234/camerarc/camerarl/camerarr/MCUID")
+    parser.add_argument(
+        "record_value",
+        type=str,
+        help="One of 1234/camerarc/camerarl/camerarr/MCUID/DMZEROSET",
+    )
     parser.add_argument("--side", type=str, default="", choices=["", "left", "right"])
     parser.add_argument("--serial-port", type=str, default="")
     cli_args, _unknown = parser.parse_known_args()
 
-    if cli_args.record_value not in ("1234", "camerarc", "camerarl", "camerarr", "MCUID"):
-        print("Error: record value must be one of 1234/camerarc/camerarl/camerarr/MCUID")
+    if cli_args.record_value not in VALID_RECORD_VALUES:
+        print("Error: record value must be one of 1234/camerarc/camerarl/camerarr/MCUID/DMZEROSET")
         sys.exit(1)
 
     rclpy.init(args=args)
@@ -57,7 +62,14 @@ def main(args=None):
     )
     time.sleep(1.0)
     bus.add_cmd(CmdPack.pack_calib(record=record_bytes))
-    time.sleep(0.5)
+
+    if cli_args.record_value in ("MCUID", "DMZEROSET"):
+        bus.wait_for_calib_response(timeout=3.0)
+    elif cli_args.record_value.startswith("camera"):
+        bus.wait_for_calib_response(timeout=2.0)
+    else:
+        time.sleep(0.5)
+
     bus.stop()
     bus.destroy_node()
     rclpy.shutdown()
@@ -66,6 +78,8 @@ def main(args=None):
         print("Calibration OK !")
     elif cli_args.record_value == "MCUID":
         print("MCUID query executed")
+    elif cli_args.record_value == "DMZEROSET":
+        print("DMZEROSET command executed")
     else:
         print(f"Finished sending command: {cli_args.record_value}")
 

@@ -312,6 +312,13 @@ class MessagePack(Pack):
                     print(f"Failed to save calib file: {e}")
                     return False
             else:
+                cmd_name = os.environ.get("CALIB_CMD_NAME", "")
+                prefix = f"Device response ({cmd_name})" if cmd_name else "Device response"
+                try:
+                    text = payload.decode("ascii")
+                    print(f"{prefix}: {text}")
+                except Exception:
+                    print(f"{prefix}: {payload.hex()}")
                 return True
 
         except Exception:
