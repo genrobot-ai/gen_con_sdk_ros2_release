@@ -32,6 +32,7 @@ class GripperDataConverter(Node):
 
     def right_gripper_data_callback(self, msg):
         self.latest_right_data = msg
+        self.get_logger().info(f'right gripper distance: {msg.data:.4f} m')
 
     def process_gripper_feedback(self, gripper_msg, publisher, gripper_name):
         pose_msg = PoseStamped()
@@ -64,6 +65,8 @@ class GripperDataConverter(Node):
         if self.latest_right_cmd is not None:
             self.process_gripper_cmd(
                 self.latest_right_cmd, self.right_gripper_cmd_pub, "right")
+                
+        # self.left_gripper_cmd_pub.publish(Float32(data=0.05))  # Control gripper target distance, range 0.0–0.103 m
 
 
 def main(args=None):
