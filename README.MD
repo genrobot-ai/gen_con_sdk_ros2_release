@@ -1,4 +1,4 @@
-# Gen Controller SDK (ROS2)
+# Gen Gripper Controller SDK (ROS2)
 
 > ROS2 driver for Gen Controller gripper — camera streaming, tactile sensing, encoder feedback, and distance control.
 

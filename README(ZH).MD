@@ -1,4 +1,4 @@
-# Gen Controller SDK (ROS2)
+# Gen Gripper Controller SDK (ROS2)
 
 > 用于 Gen Controller 夹爪的 ROS2 驱动，支持相机图像、触觉传感、编码器反馈及开合距离控制。
 
