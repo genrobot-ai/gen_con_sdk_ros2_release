@@ -35,7 +35,8 @@ class DataBusNode(Node):
                  is_calib_cmd=False,
                  calib_cmd_name: str = None,
                  encoder_freq: float = None,
-                 tactile_freq: float = None):
+                 tactile_freq: float = None,
+                 gripper_type: str = None):
         super().__init__('das_ros_interface')
 
         # Declare parameters (allow launch overrides)
@@ -45,6 +46,7 @@ class DataBusNode(Node):
         self.declare_parameter('topic_target_distance', TOPIC_TARGET_DISTANCE)
         self.declare_parameter('serial_port', '')
         self.declare_parameter('side', '')
+        self.declare_parameter('gripper_type', 'default_gripper')
 
         self.topic_left_tactile = self.get_parameter('topic_left_tactile').value
         self.topic_right_tactile = self.get_parameter('topic_right_tactile').value
@@ -52,6 +54,7 @@ class DataBusNode(Node):
         self.topic_target_distance = self.get_parameter('topic_target_distance').value
         param_serial_port = self.get_parameter('serial_port').value or ''
         param_side = self.get_parameter('side').value or ''
+        param_gripper_type = self.get_parameter('gripper_type').value or 'default_gripper'
 
         if not tty_port:
             tty_port = param_serial_port
@@ -88,6 +91,7 @@ class DataBusNode(Node):
 
         self.encoder_freq = encoder_freq
         self.tactile_freq = tactile_freq
+        self.gripper_type = gripper_type or param_gripper_type
         self.encoder_thread: threading.Thread = None
         self.tactile_thread: threading.Thread = None
 
@@ -245,6 +249,7 @@ class DataBusNode(Node):
                 opcode=Opcode.WriteDrive,
                 record_type=RecordType.Drive,
                 record=struct.pack(">f", angle_dgree),
+                gripper_type=self.gripper_type,
             )
         )
 
@@ -253,6 +258,7 @@ class DataBusNode(Node):
             CmdPack.pack(
                 opcode=Opcode.DisableDrive,
                 record_type=RecordType.Drive,
+                gripper_type=self.gripper_type,
             )
         )
 
@@ -261,6 +267,7 @@ class DataBusNode(Node):
             CmdPack.pack(
                 opcode=Opcode.CalibEncoder,
                 record_type=RecordType.Drive,
+                gripper_type=self.gripper_type,
             )
         )
 
@@ -462,6 +469,7 @@ class DataBusNode(Node):
                     opcode=Opcode.ReadBatch,
                     record_type=RecordType.Encoder,
                     record=struct.pack(">f", dis_target),
+                    gripper_type=self.gripper_type,
                 ),
             )
 
@@ -482,7 +490,12 @@ class DataBusNode(Node):
         while self.is_running and rclpy.ok():
             start_time = time.time()
             self.add_cmd(
-                CmdPack.pack(opcode=Opcode.ReadSingle, record_type=RecordType.Tactile, record=struct.pack(">f", 0.0))
+                CmdPack.pack(
+                    opcode=Opcode.ReadSingle,
+                    record_type=RecordType.Tactile,
+                    record=struct.pack(">f", 0.0),
+                    gripper_type=self.gripper_type,
+                )
             )
 
             elapsed = time.time() - start_time

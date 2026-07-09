@@ -50,9 +50,17 @@ Verify feedback and send a control command:
 # Terminal 2 — read encoder feedback
 ros2 topic echo /encoder
 
-# Terminal 3 — set target opening to 5 cm (range: 0.0 ~ 0.103 m)
+# Terminal 3 — set target opening to 5 cm
 ros2 topic pub /target_distance std_msgs/msg/Float32 "{data: 0.05}" --once
 ```
+
+Select the gripper type in the launch command. The maximum opening distance depends on the gripper:
+
+| Gripper type | Maximum opening distance |
+| --- | ---: |
+| `default_gripper` | `0.103` m |
+| `tactile_gripper` | `0.0998` m |
+| `soft_gripper` | `0.103` m |
 
 
 
@@ -71,7 +79,7 @@ ros2 topic pub /target_distance std_msgs/msg/Float32 "{data: 0.05}" --once
 | `/encoder`                  | `std_msgs/Float32`        | publish   | Gripper opening distance feedback (m)         |
 | `/tactile/left`             | `std_msgs/Int8MultiArray` | publish   | Left tactile sensor                           |
 | `/tactile/right`            | `std_msgs/Int8MultiArray` | publish   | Right tactile sensor                          |
-| `/target_distance`          | `std_msgs/Float32`        | subscribe | Target opening distance, range `[0.0, 0.103]` |
+| `/target_distance`          | `std_msgs/Float32`        | subscribe | Target opening distance; keep within the selected gripper type limit |
 
 
 
@@ -149,6 +157,8 @@ Default serial symlinks after dual-gripper setup: `/dev/ttyDeviceLeft`, `/dev/tt
 ```shell
 source install/setup.bash
 ros2 launch robot_driver single_gripper_start.launch.py
+ros2 launch robot_driver single_gripper_start.launch.py gripper_type:=tactile_gripper
+ros2 launch robot_driver single_gripper_start.launch.py gripper_type:=soft_gripper
 ```
 
 Three preview windows appear by default. Disable preview:
@@ -164,6 +174,7 @@ ros2 launch robot_driver single_gripper_start.launch.py show_preview:=false
 ```shell
 source install/setup.bash
 ros2 launch robot_driver dual_gripper_start.launch.py
+ros2 launch robot_driver dual_gripper_start.launch.py left_gripper_type:=tactile_gripper right_gripper_type:=default_gripper
 ```
 
 Run demo nodes to bridge model commands to gripper topics:

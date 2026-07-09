@@ -9,6 +9,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     serial_arg = DeclareLaunchArgument('serial', default_value='/dev/ttyDeviceLeft')
+    gripper_type_arg = DeclareLaunchArgument('gripper_type', default_value='default_gripper')
     res_arg = DeclareLaunchArgument('camera_resolutions', default_value='1600x1296')
     preview_arg = DeclareLaunchArgument('show_preview', default_value='true')
     qos_reliability_arg = DeclareLaunchArgument('image_qos_reliability', default_value='best_effort')
@@ -22,6 +23,7 @@ def generate_launch_description():
     v2s = DeclareLaunchArgument('video_2_sec', default_value='/dev/left_video_2_sec')
 
     serial = LaunchConfiguration('serial')
+    gripper_type = LaunchConfiguration('gripper_type')
     res = LaunchConfiguration('camera_resolutions')
     show_preview = ParameterValue(LaunchConfiguration('show_preview'), value_type=bool)
     image_qos_depth = ParameterValue(LaunchConfiguration('image_qos_depth'), value_type=int)
@@ -63,6 +65,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'serial_port': serial,
+            'gripper_type': gripper_type,
             'topic_left_tactile': 'tactile/left',
             'topic_right_tactile': 'tactile/right',
             'topic_encoder': 'encoder',
@@ -71,7 +74,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        serial_arg, res_arg, preview_arg, qos_reliability_arg, qos_depth_arg,
+        serial_arg, gripper_type_arg, res_arg, preview_arg, qos_reliability_arg, qos_depth_arg,
         v0m, v0s, v1m, v1s, v2m, v2s,
         camera_node,
         TimerAction(period=3.0, actions=[das_node]),

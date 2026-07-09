@@ -10,6 +10,8 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     left_serial = DeclareLaunchArgument('left_serial', default_value='/dev/ttyDeviceLeft')
     right_serial = DeclareLaunchArgument('right_serial', default_value='/dev/ttyDeviceRight')
+    left_gripper_type = DeclareLaunchArgument('left_gripper_type', default_value='default_gripper')
+    right_gripper_type = DeclareLaunchArgument('right_gripper_type', default_value='default_gripper')
     res_arg = DeclareLaunchArgument('camera_resolutions', default_value='1600x1296')
     preview_arg = DeclareLaunchArgument('show_preview', default_value='true')
     qos_reliability_arg = DeclareLaunchArgument('image_qos_reliability', default_value='best_effort')
@@ -36,7 +38,7 @@ def generate_launch_description():
     image_qos_depth = ParameterValue(LaunchConfiguration('image_qos_depth'), value_type=int)
     res = LaunchConfiguration('camera_resolutions')
 
-    def side_group(ns, serial_cfg, v0m, v0s, v1m, v1s, v2m, v2s, das_delay):
+    def side_group(ns, serial_cfg, gripper_type, v0m, v0s, v1m, v1s, v2m, v2s, das_delay):
         camera = Node(
             package='robot_driver',
             executable='camera_view_single',
@@ -72,6 +74,7 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 'serial_port': serial_cfg,
+                'gripper_type': gripper_type,
                 'topic_left_tactile': 'tactile/left',
                 'topic_right_tactile': 'tactile/right',
                 'topic_encoder': 'encoder',
@@ -85,14 +88,14 @@ def generate_launch_description():
         ])
 
     left_group = side_group(
-        'left_gripper', LaunchConfiguration('left_serial'),
+        'left_gripper', LaunchConfiguration('left_serial'), LaunchConfiguration('left_gripper_type'),
         LaunchConfiguration('left_video_0_main'), LaunchConfiguration('left_video_0_sec'),
         LaunchConfiguration('left_video_1_main'), LaunchConfiguration('left_video_1_sec'),
         LaunchConfiguration('left_video_2_main'), LaunchConfiguration('left_video_2_sec'),
         das_delay=3.0,
     )
     right_group = side_group(
-        'right_gripper', LaunchConfiguration('right_serial'),
+        'right_gripper', LaunchConfiguration('right_serial'), LaunchConfiguration('right_gripper_type'),
         LaunchConfiguration('right_video_0_main'), LaunchConfiguration('right_video_0_sec'),
         LaunchConfiguration('right_video_1_main'), LaunchConfiguration('right_video_1_sec'),
         LaunchConfiguration('right_video_2_main'), LaunchConfiguration('right_video_2_sec'),
@@ -100,7 +103,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        left_serial, right_serial, res_arg, preview_arg, qos_reliability_arg, qos_depth_arg,
+        left_serial, right_serial, left_gripper_type, right_gripper_type,
+        res_arg, preview_arg, qos_reliability_arg, qos_depth_arg,
         *left_videos, *right_videos,
         left_group, right_group,
     ])
